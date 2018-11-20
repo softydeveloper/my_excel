@@ -14579,6 +14579,8 @@ function pt2px(pt) { return pt * PPI / 96; }
     });
 
     function write_ws_xml(idx, opts, wb) {
+				console.log(opts);
+
         var o = [XML_HEADER, WS_XML_ROOT];
         var s = wb.SheetNames[idx],
             sidx = 0,
@@ -14590,7 +14592,8 @@ function pt2px(pt) { return pt * PPI / 96; }
         o[o.length] = writextag("dimension", null, {
             ref: ref
         });
-        var sheetView = writextag("sheetView", null, {
+        if (ws["!freeze"]) var pane = writextag("pane", null, ws["!freeze"]);
+        var sheetView = writextag("sheetView", pane, {
             showGridLines: opts.showGridLines == false ? "0" : "1",
             tabSelected: opts.tabSelected === undefined ? "0" : opts.tabSelected,
             workbookViewId: opts.workbookViewId === undefined ? "0" : opts.workbookViewId

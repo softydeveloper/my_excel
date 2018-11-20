@@ -2,6 +2,7 @@
 <!-- saved from url=(0039)http://sheetjs.com/demos/writexlsx.html -->
 <html>
 <head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<script type="text/javascript" src="./src/xlsx.core.min.js"></script>
 <script type="text/javascript" src="./src/test.js"></script>
 <script type="text/javascript" src="./src/Blob.js"></script>
 <script type="text/javascript" src="./src/FileSaver.js"></script>
@@ -52,6 +53,12 @@ function sheet_from_array_of_arrays(data, opts) {
 		}
 	}
 	if(range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
+	ws['!freeze'] = {
+		xSplit: "1",
+		ySplit:"1" ,
+		topLeftCell: "B2",
+		activePane: "bottomRight",
+		state:"frozen"};
 	return ws;
 }
  
@@ -72,68 +79,19 @@ function s2ab(s) {
 
 function save(){
 	/* original data */
-	var data = [[1,2,3,4],["Sample", "Sample", "Sample", "Sample"],["foo","bar","Hello","0.3"], ["baz", null, "qux"]]
+	var data = [[1,2,3,4],["Sample", "Sample", "Sample", "Sample"],["foo","bar","Hello",0.3], ["baz", 5, "qux",5]];
 	var ws_name = "SheetJS";
 	 
 	var wb = new Workbook(), ws = sheet_from_array_of_arrays(data);
-	 
+
+	
 	/* add worksheet to workbook */
 	wb.SheetNames.push(ws_name);
-	console.log(ws);
-	console.log(JSON.stringify(ws));
 	wb.Sheets[ws_name] = ws;
-	var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:true, type: 'binary'});
-    console.log(JSON.stringify(wbout))
+		var defaultCellStyle =  { font: { name: "Verdana", sz: 11, color: "FF00FF88"}, fill: {fgColor: {rgb: "FFFFAA00"}},border :{bottom:{style:'medium',color:"FF00FF88"}}};
+
+	var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:false, type: 'binary',showGridLines:false,defaultCellStyle:defaultCellStyle});
 	saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "sample.xlsx")
-}
-
-function read(){
-	/* set up XMLHttpRequest */
-	var url = "sample.xlsx";
-	var oReq = new XMLHttpRequest();
-	oReq.open("GET", url, true);
-	oReq.responseType = "arraybuffer";
-
-	oReq.onload = function(e) {
-		var arraybuffer = oReq.response;
-
-		/* convert data to binary string */
-		var data = new Uint8Array(arraybuffer);
-		var arr = new Array();
-		for(var i = 0; i != data.length; ++i) arr[i] = String.fromCharCode(data[i]);
-		var bstr = arr.join("");
-
-		/* Call XLSX */
-		var workbook = XLSX.read(bstr, {type:"binary"});
-		console.log(workbook);
-		/* DO SOMETHING WITH workbook HERE */
-
-		var first_sheet_name = workbook.SheetNames[0];
-		var address_of_cell = 'A1';
-
-		/* Get worksheet */
-		var worksheet = workbook.Sheets[first_sheet_name];
-		
-		/* Find desired cell */
-		var desired_cell = worksheet[address_of_cell];
-
-		/* Get the value */
-		var desired_value = desired_cell.v;
-	  
-	  
-		var wb = new Workbook(), ws = worksheet;
-	 
-		/* add worksheet to workbook */
-		wb.SheetNames.push("new");
-		console.log(ws);
-		
-		wb.Sheets["new"] = ws;
-		var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:true, type: 'binary'});
-
-		saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "sample.xlsx")
-	}
-
-	oReq.send();
 }
 </script>
 
