@@ -23756,7 +23756,7 @@ function pt2px(pt) { return pt * PPI / 96; }
             },
             _addBorder: function(attributes) {
                 if (!attributes) {
-                    return 0
+                    return 1
                 }
                 var self = this;
                 var $border = XmlNode("border").attr("diagonalUp", attributes.diagonalUp).attr("diagonalDown", attributes.diagonalDown);
