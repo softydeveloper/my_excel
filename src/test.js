@@ -14579,8 +14579,6 @@ function pt2px(pt) { return pt * PPI / 96; }
     });
 
     function write_ws_xml(idx, opts, wb) {
-				console.log(opts);
-
         var o = [XML_HEADER, WS_XML_ROOT];
         var s = wb.SheetNames[idx],
             sidx = 0,
@@ -14610,6 +14608,9 @@ function pt2px(pt) { return pt * PPI / 96; }
             o[sidx] = o[sidx].replace("/>", ">")
         }
         if (ws["!merges"] !== undefined && ws["!merges"].length > 0) o[o.length] = write_ws_xml_merges(ws["!merges"]);
+		 if (opts.rajnish_conditional_formating == 1) {
+			 o[o.length] = '<conditionalFormatting sqref="E1:E1048576"><cfRule type="cellIs" dxfId="2" priority="4" operator="between"><formula>0</formula> <formula>50</formula> </cfRule><cfRule type="containsBlanks" priority="1" stopIfTrue="1"><formula>LEN(TRIM(E1))=0</formula> </cfRule><cfRule type="cellIs" dxfId="1" priority="3" operator="between"><formula>50</formula> <formula>90</formula> </cfRule><cfRule type="cellIs" dxfId="0" priority="2" operator="between"><formula>90</formula> <formula>100</formula> </cfRule></conditionalFormatting><conditionalFormatting sqref="F1:AP1048576"><cfRule type="cellIs" dxfId="3" priority="1" operator="equal"><formula>0</formula> </cfRule><cfRule type="cellIs" dxfId="4" priority="2" operator="equal"><formula>1</formula> </cfRule></conditionalFormatting>';
+        }
         if (ws["!pageSetup"] !== undefined) o[o.length] = write_ws_xml_pagesetup(ws["!pageSetup"]);
         if (ws["!rowBreaks"] !== undefined) o[o.length] = write_ws_xml_row_breaks(ws["!rowBreaks"]);
         if (ws["!colBreaks"] !== undefined) o[o.length] = write_ws_xml_col_breaks(ws["!colBreaks"]);
@@ -23553,6 +23554,13 @@ function pt2px(pt) { return pt * PPI / 96; }
                 this.$cellXfs = XmlNode("cellXfs").attr("count", 0);
                 this.$cellStyles = XmlNode("cellStyles").append(XmlNode("cellStyle").attr("name", "Normal").attr("xfId", 0).attr("builtinId", 0));
                 this.$dxfs = XmlNode("dxfs").attr("count", "0");
+					if(options.rajnish_conditional_formating == 1){
+			this.$dxfs.append(XmlNode("dxf").append(XmlNode("font").append(XmlNode("color").attr("rgb", "00FF00"))).append(XmlNode("fill").append(XmlNode("patternFill").append(XmlNode("bgColor").attr("rgb", "003300")))));
+			this.$dxfs.append(XmlNode("dxf").append(XmlNode("font").append(XmlNode("color").attr("rgb", "FFFF00"))).append(XmlNode("fill").append(XmlNode("patternFill").append(XmlNode("bgColor").attr("rgb", "CC6600")))));
+			this.$dxfs.append(XmlNode("dxf").append(XmlNode("font").append(XmlNode("color").attr("rgb", "FFFFFF"))).append(XmlNode("fill").append(XmlNode("patternFill").append(XmlNode("bgColor").attr("rgb", "960000")))));
+			this.$dxfs.append(XmlNode("dxf").append(XmlNode("font").append(XmlNode("color").attr("rgb", "21FFFF"))));
+			this.$dxfs.append(XmlNode("dxf").append(XmlNode("font").append(XmlNode("color").attr("rgb", "FFFF00")))).attr("count", "4");
+		}
                 this.$tableStyles = XmlNode("tableStyles").attr("count", "0").attr("defaultTableStyle", "TableStyleMedium9").attr("defaultPivotStyle", "PivotStyleMedium4");
                 this.$styles = XmlNode("styleSheet").attr("xmlns:mc", "http://schemas.openxmlformats.org/markup-compatibility/2006").attr("xmlns:x14ac", "http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac").attr("xmlns", "http://schemas.openxmlformats.org/spreadsheetml/2006/main").attr("mc:Ignorable", "x14ac").prefix('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>').append(this.$numFmts).append(this.$fonts).append(this.$fills).append(this.$borders).append(this.$cellStyleXfs.append(this.$xf)).append(this.$cellXfs).append(this.$cellStyles).append(this.$dxfs).append(this.$tableStyles);
                 var defaultStyle = options.defaultCellStyle || {};
